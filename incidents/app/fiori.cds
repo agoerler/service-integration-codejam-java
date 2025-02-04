@@ -1,3 +1,4 @@
+using { acme.incmgt } from '../db/schema';
 using { IncidentsService, acme.incmgt.Incidents, cuid } from '../srv/incidents-service';
 
 annotate cuid:ID with @title: 'ID';
@@ -5,11 +6,11 @@ annotate cuid:ID with @title: 'ID';
 annotate IncidentsService.Incidents with @(UI : {
 
   // For Lists of Incidents
-  SelectionFields : [ urgency, status, service.type ],
+  SelectionFields : [ urgency_code, status_code, service.type ],
   LineItem : [
     { Value: title },
-    { Value: urgency, Criticality : #Critical, CriticalityRepresentation : #WithoutIcon, },
-    { Value: status },
+    { Value: urgency.name, Criticality : #Critical, CriticalityRepresentation : #WithoutIcon, },
+    { Value: status.name },
     { Value: service.type },
   ],
 
@@ -38,8 +39,8 @@ annotate IncidentsService.Incidents with @(UI : {
 
   FieldGroup #HeaderGeneralInformation : {
     Data : [
-      { Value: urgency },
-      { Value: status },
+      { Value: urgency.name },
+      { Value: status.name },
       { Value: service.type },
       { Label: 'Worker', $Type  : 'UI.DataFieldForAnnotation', Target : 'service/worker/@Communication.Contact' }
     ]
@@ -54,9 +55,9 @@ annotate IncidentsService.Incidents with @(UI : {
 
   FieldGroup #GeneralInformation: {
     Data : [
-      { Value: urgency, },
+      { Value: urgency.name },
       { Value: service.type },
-      { Value: status, },
+      { Value: status.name, },
     ],
   },
 
@@ -105,45 +106,29 @@ annotate IncidentsService.Appointments with @(UI : {
 });
 
 
+// TODO: proper use of code lists with value help
+annotate incmgt.Urgencies with {
+  @Common : { 
+    Text : descr,
+    TextArrangement : #TextOnly,
+  }
+  code;
 
-// Reusable aspect for enums-based Value Helps
-aspect EnumsCodeList @cds.autoexpose @cds.odata.valuelist {
-  key value: String @Common: { Text: label, TextArrangement: #TextOnly };
-  label : localized String;
-  descr : localized String;
-}
+  @title : 'Urgency'
+  name;
+};
 
-// Value Help for Incidents.urgency
-entity acme.incmgt.Incidents_urgency : EnumsCodeList {}; // REVISIT: Should be Incidents.urgency but this creates confusion with Incidents:urgency
-extend entity Incidents with {
-  urgency_: Association to acme.incmgt.Incidents_urgency on urgency_.value = urgency; // REVISIT: we should get rid of unstable element order messages
-  extend urgency with @Common : { // REVISIT: we should also support keyword annotate here
-    Text: urgency_.label, TextArrangement : #TextOnly,
-    ValueListWithFixedValues,
-    ValueList: {
-      CollectionPath:'Incidents_urgency',
-      Parameters:[
-        { $Type: 'Common.ValueListParameterInOut', LocalDataProperty: urgency, ValueListProperty: 'value' },
-      ],
-    },
-  };
-}
+annotate incmgt.Statuses with {
+  @Common : { 
+    Text : descr,
+    TextArrangement : #TextOnly,
+  }
+  code;
 
-// Value Help for Incidents.status
-entity acme.incmgt.Incidents_status : EnumsCodeList {}; // REVISIT: Should be Incidents.status but this creates confusion with Incidents:status
-extend entity Incidents with {
-  status_: Association to acme.incmgt.Incidents_status on status_.value = status; // REVISIT: we should get rid of unstable element order messages
-  extend status with @Common : { // REVISIT: we should also support keyword annotate here
-    Text: status_.label, TextArrangement : #TextOnly,
-    ValueListWithFixedValues,
-    ValueList: {
-      CollectionPath:'Incidents_status', // REVISIT: Should be Incidents.Status but this doesn't work
-      Parameters:[
-        { $Type: 'Common.ValueListParameterInOut', LocalDataProperty: status, ValueListProperty: 'value' },
-      ],
-    },
-  };
-}
+  @title : 'Status'
+  name;
+};
+
 
 
 // REVISIT: this is needed to make the 'conversation/@UI.LineItem' path work

@@ -1,4 +1,4 @@
-value;label;descr
+code;name;descr
 new;New;An incident that has been logged but not yet worked on.
 assigned;Assigned;Incident has been asssigned to a technician
 in process;In Process;Case is being actively worked on

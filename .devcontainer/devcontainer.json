@@ -22,11 +22,18 @@
     "features": {
         "ghcr.io/devcontainers/features/sshd:1": {
             "version": "latest"
-        }
+        },
+        "ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "true",
+			"mavenVersion": "3.9.9",
+			"installGradle": "false"
+		}
     },
     "forwardPorts": [
         4004,
-        5005
+        5005,
+        8080
     ],
     "remoteUser": "node"
 }

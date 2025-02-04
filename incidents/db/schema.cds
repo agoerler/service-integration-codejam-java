@@ -7,25 +7,24 @@ namespace acme.incmgt;
  */
 entity Incidents : cuid, managed {
   title        : String  @title : 'Title';
-  urgency      : String @title: 'Urgency' enum {
-    high            @title: 'High';
-    medium          @title: 'Medium';
-    low             @title: 'Low';
-  };
-  status       : String @title: 'Status' enum {
-    new             @title: 'New'         @description: 'An incident that has been logged but not yet worked on.';
-    assigned        @title: 'Assigned'    @description: 'Incident has been asssigned to a technician';
-    ![in process]   @title: 'In Process'  @description: 'Case is being actively worked on';
-    ![on hold]      @title: 'On Hold'     @description: 'Incident has been put on hold';
-    resolved        @title: 'Resolved'    @description: 'Resolution has been found';
-    closed          @title: 'Closed'      @description: 'Incident was acknowleged closed by end user';
-  };
+  urgency      : Urgency @title : 'Urgency';
+  status       : Status  @title : 'Status';
   conversation : Composition of many {
     key timestamp : DateTime    @title: 'Time';
     author        : String(77)  @title: 'Author' @cds.on.create: $user;
     message       : String(300) @title: 'Message';
   };
   service      : Association to Appointments;
+}
+
+type Urgency : Association to Urgencies;
+entity Urgencies : CodeList {
+  key code : String @title: 'Urgency';
+}
+
+type Status : Association to Statuses;
+entity Statuses : CodeList {
+  key code : String @title: 'Status';
 }
 
 
